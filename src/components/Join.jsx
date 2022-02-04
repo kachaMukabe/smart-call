@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { doc, updateDoc, onSnapshot, getDoc } from "firebase/firestore";
 import { db } from "../firebase"
 import { AuthContext } from "../AuthContext";
+import { Symbl } from 'symbl-chime-adapter';
 import Layout from './layout/Layout';
 import UserCallCard from './UserCallCard';
 import AgoraRTC from "agora-rtc-sdk";
@@ -51,6 +52,8 @@ let client = AgoraRTC.createClient({
 });
 
 client.init(process.env.REACT_APP_AGORA_KEY);
+
+let symbl;
 
 let handleError = function (err){
 	console.log("Error: ", err);
@@ -223,6 +226,62 @@ const Join = () => {
 			}
 		});
 	}, []);
+
+	useEffect(() => {
+		(async () => {
+			const res = await fetch("http://localhost:8081/symbl-token");
+            const data = await res.json();
+            const config = {
+                attendeeId: btoa(currentUser.displayName),
+                meetingId: btoa(room),
+                userName: currentUser.displayName,
+                meeting: room
+            };
+            console.log("Got symbl token", data, config);
+            Symbl.ACCESS_TOKEN = data.accessToken;
+
+            symbl = new Symbl(config);
+            const insightHandler = {
+                onInsightCreated: (insight) => {
+                    console.log('Insight created', insight, insight.type);
+                }
+            };
+            symbl.subscribeToInsightEvents(insightHandler);
+            const transcriptHandler = {
+                onTranscriptCreated: transcript => {
+                    console.log('On transcript created', transcript);
+                }
+            };
+            symbl.subscribeToTranscriptEvents(transcriptHandler);
+            var _caption = '';
+            //const captioningHandler = {
+                //onCaptioningToggled: ccEnabled => {
+                    //// Implement
+                //},
+                //onCaptionCreated: (caption) => {
+                    //console.warn("Caption created", caption);
+                    //// Retrieve the video element that you wish to add the subtitle tracks to.
+                    //// var activeVideoElement = document.querySelector("video");
+                    //var videoElementContainer = document.getElementsByClassName('main-stream-player')[0];
+                    //if (videoElementContainer) {
+                        //const activeVideoElement = videoElementContainer.querySelector('video');
+                        //caption.setVideoElement(activeVideoElement);
+                    //}
+                //},
+                //onCaptionUpdated: (caption) => {
+                    //// Check if the video element is set correctly
+
+                    //var videoElementContainer = document.getElementsByClassName('main-stream-player')[0];
+                    //if (videoElementContainer) {
+                        //const activeVideoElement = videoElementContainer.querySelector('video');
+                        //caption.setVideoElement(activeVideoElement);
+                    //}
+                //}
+            //};
+            //symbl.subscribeToCaptioningEvents(captioningHandler);
+            symbl.start();
+		})();
+	}, [stream])
 
 	if (load){
 		return <Layout><p>Loading</p></Layout>
