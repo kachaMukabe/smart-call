@@ -3,7 +3,20 @@ import { useNavigate } from "react-router-dom"
 import { db } from "../firebase"
 import { addDoc, collection } from "firebase/firestore"
 import { AuthContext } from "../AuthContext"
+import { 
+	Box,
+	Button,
+	FormControl,
+  FormLabel,
+  FormErrorMessage,
+  FormHelperText,
+	Input,
+	HStack,
+	RadioGroup,
+	Radio
+} from "@chakra-ui/react"
 import Rooms from './Rooms'
+import Layout from './layout/Layout'
 
 
 const Home = () => {
@@ -35,19 +48,27 @@ const Home = () => {
 	}
 
 	return (
-		<>
-			<div>Hello</div>
-			<input type="text" placeholder="room name" onChange={(e) => setName(e.target.value)} />
-			<button onClick={()=>{
-				setPrivateRoom(true);
-				createRoom();
-			}}>Private</button>
-			<button onClick={()=>{
-				setPrivateRoom(false);
-				createRoom();
-			}}>Public</button>
+		<Layout>
+			<Box p={6}>
+				<FormControl>
+					<FormLabel>Room Name</FormLabel>
+					<Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+					<RadioGroup defaultValue="public">
+						<HStack spacing='24px'>
+							<Radio value="private">Private</Radio>
+							<Radio value="public">Public</Radio>
+						</HStack>
+					</RadioGroup>
+				</FormControl>
+				<Button onClick={()=>{
+					console.log("hello me");
+					}}
+				> 
+					Create 
+				</Button>
+			</Box>
 			<Rooms />
-		</>
+		</Layout>
 	)
 }
 

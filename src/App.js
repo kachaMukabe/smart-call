@@ -5,7 +5,7 @@ import { AuthProvider } from './AuthContext';
 import Home from './components/Home';
 import Join from './components/Join';
 import Login from './components/Login';
-import RequireAuth from './utils/PrivateRoute';
+import RequireAuth from './utils/RequireAuth';
 
 function App() {
   return (

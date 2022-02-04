@@ -3,7 +3,46 @@ import { useParams, useNavigate } from "react-router-dom";
 import { doc, updateDoc, onSnapshot, getDoc } from "firebase/firestore";
 import { db } from "../firebase"
 import { AuthContext } from "../AuthContext";
+import Layout from './layout/Layout';
+import UserCallCard from './UserCallCard';
 import AgoraRTC from "agora-rtc-sdk";
+import {
+	Select,
+	SimpleGrid,
+	Box,
+	Heading,
+	Avatar,
+	Center,
+	Button,
+	Modal,
+	ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+	useDisclosure,
+	useColorModeValue,
+	Container,
+	Stack,
+	Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
+  PopoverFooter,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverAnchor,
+} from '@chakra-ui/react';
+import {
+	FiMic,
+	FiLogOut,
+	FiMicOff,
+	FiRadio,
+	FiSpeaker,
+	FiMusic
+} from 'react-icons/fi';
 
 
 let client = AgoraRTC.createClient({
@@ -41,6 +80,7 @@ const Join = () => {
 	const [hostId, setHostId] = useState("");
 
 	const { currentUser } = useContext(AuthContext);
+	const { isOpen, onClose, onOpen } = useDisclosure();
 
 	async function addVideoStream(elementId){
 		let remoteContainer = document.getElementById("remote");
@@ -185,56 +225,151 @@ const Join = () => {
 	}, []);
 
 	if (load){
-		return <p>Loading</p>
+		return <Layout><p>Loading</p></Layout>
 	} 
 
 	return (
-		<div>
-			<p>Join</p>
+		<Layout>
+			<Modal isOpen={isOpen} onClose={onClose}>
+				<ModalOverlay />
+				<ModalContent>
+					<ModalHeader>Audio profile</ModalHeader>
+					<ModalCloseButton />
+					<ModalBody>
+						<Select 
+							placeholder="Select profile"
+							onChange={(e) => stream.setAudioProfile(e)}
+						>
+							{profiles.map((profile, i) => (
+								<option key={i} value={profile}>
+									{profile.split("_").join(" ")}
+								</option>
+							))}
+						</Select>
+					</ModalBody>
+				</ModalContent>
+			</Modal>
 			{ conn_state == "CONNECTED" ? (
 				<div>
-					<p>participants</p>
+					<Heading>Participants</Heading>
 					<div id="me"></div>
 					<div id="remote"></div>
-					{active.map((person, i) => (
-						<div key={i} key={person.uid}>
-							<p>{person?.name?.split(" ")[0]}</p>
-						</div>
-					))}
+					<SimpleGrid minChildWidth='250px' spacing='40px'>
+						{active.map((person, i) => (
+							<UserCallCard key={i} key={person.uid} currentUser={currentUser} />
+						))}
+					</SimpleGrid>
 					<p>{conn_state}</p>
 				</div>
 			): (
-				<button onClick={join}>Join room</button>
+				<Button onClick={join} size="lg" colorScheme="blue">Join room</Button>
 			) }
 			{stream && (
 				<div>
-					<div>
-						{mute ? (
-							<button onClick={() => {
-								stream.unmuteAudio();
-								setMute(false);
-								}}
-							>Mute</button>
-						): (
-							<button onClick={() => {
-								stream.muteAudio();
-								setMute(true);
-								}}
-							>Mute</button>
-						)}
-					</div>
-					<button onClick={() => {
-						client.leave(() => {
-							updateDoc(doc(db, "rooms", id), {
-								members: active.filter( member => member.userId !== parseInt(stream_id) ),
-							}).then(() => navigate("/"))
-								.catch((e) => console.log(e));
-						});
-						}}
-					>Log out</button>
+					<Box
+					>
+						<Container
+							as={Stack}
+							maxW={'6xl'}
+							py={4}
+							direction={{  base: 'column', md: 'row' }}
+							spacing={4}
+							justify={{base: 'center', md: 'space-between'}}
+							align={{ basde: 'center', md: 'center' }}
+						>
+						<div>
+							{mute ? (
+								<Button onClick={() => {
+									stream.unmuteAudio();
+									setMute(false);
+									}}
+								>
+									<FiMicOff />
+								</Button>
+							): (
+								<Button onClick={() => {
+									stream.muteAudio();
+									setMute(true);
+									}}
+								>
+									<FiMic />
+								</Button>
+							)}
+						</div>
+						<Popover
+							placement='top'
+							closeOnBlur={false}
+						>
+							<PopoverTrigger>
+								<Button><FiSpeaker /></Button>
+							</PopoverTrigger>
+							<PopoverContent >
+								<PopoverHeader>
+									Select output device
+								</PopoverHeader>
+								<PopoverArrow />
+								<PopoverCloseButton />
+								<PopoverBody>
+									{audio_output.map((d,i) => (
+									<Button key={i} 
+										onClick={() => {
+											stream.setAudioProfile(d.deviceId, () => {
+												console.log("success");
+											})
+										}}
+									>
+										{d.label}
+									</Button>
+									))}
+								</PopoverBody>
+							</PopoverContent>
+						</Popover>
+
+						<Popover
+							placement='top'
+							closeOnBlur={false}
+						>
+							<PopoverTrigger>
+								<Button><FiMusic /></Button>
+							</PopoverTrigger>
+							<PopoverContent >
+								<PopoverHeader>
+									Select input device
+								</PopoverHeader>
+								<PopoverArrow />
+								<PopoverCloseButton />
+								<PopoverBody>
+									{audio_input.map((d,i) => (
+									<Button key={i} 
+										onClick={() => {
+											stream.switchDevice("audio", d.deviceId, () => {
+												console.log("success");
+											})
+										}}
+									>
+										{d.label}
+									</Button>
+									))}
+								</PopoverBody>
+							</PopoverContent>
+						</Popover>
+							<Button onClick={onOpen}>
+								<FiRadio />
+							</Button>
+						<Button onClick={() => {
+							client.leave(() => {
+								updateDoc(doc(db, "rooms", id), {
+									members: active.filter( member => member.userId !== parseInt(stream_id) ),
+								}).then(() => navigate("/"))
+									.catch((e) => console.log(e));
+							});
+							}}
+						><FiLogOut /></Button>
+					</Container>
+					</Box>
 				</div>
 			)}
-		</div>
+		</Layout>
 	)
 
 }
