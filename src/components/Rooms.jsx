@@ -4,12 +4,14 @@ import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../AuthContext';
 import {
+	Button,
 	Stat,
   StatLabel,
   StatNumber,
   StatHelpText,
 	SimpleGrid,
-	Link as ChakraLink
+	Link as ChakraLink,
+	HStack
 } from '@chakra-ui/react';
 
 
@@ -50,17 +52,19 @@ const Rooms = () => {
 								<StatLabel>{room.members.length} members</StatLabel>
 								<StatNumber>{room.room_name}</StatNumber>
 								<StatHelpText>
-									<ChakraLink as={Link} to={`/join/${room.key}`}>
-										Join Room
-									</ChakraLink>
-									{room?.owner.uid === currentUser.uid &&
-									(load ? (
-										<p>Loading</p>
-									) : (
-										<div>
-											<button onClick={() => deleteRoom(room.key)} color="red">Delete</button>
-										</div>
-									))}
+									<HStack>
+										<ChakraLink as={Link} to={`/join/${room.key}`}>
+											Join Room
+										</ChakraLink>
+										{room?.owner.uid === currentUser.uid &&
+										(load ? (
+											<p>Loading</p>
+										) : (
+											<div>
+												<Button size="sm" variant={'link'} onClick={() => deleteRoom(room.key)} colorScheme="red">Delete</Button>
+											</div>
+										))}
+									</HStack>
 								</StatHelpText>
 							</Stat>
 						))

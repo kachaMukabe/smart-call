@@ -1,7 +1,7 @@
 import { useState, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { db } from "../firebase"
-import { addDoc, collection } from "firebase/firestore"
+import { addDoc, collection, doc, setDoc } from "firebase/firestore"
 import { AuthContext } from "../AuthContext"
 import { 
 	Box,
@@ -42,6 +42,13 @@ const Home = () => {
 				members: [],
 			});
 
+			const roomAnalysis = await setDoc(doc(db, "roomAnalysis", room.id),{
+				created_at: new Date(),
+				transcript: [],
+				insights: [],
+				topics: []
+			});
+
 			setLoading(false);
 			navigate(`/join/${room.id}`);
 		}
@@ -60,9 +67,11 @@ const Home = () => {
 						</HStack>
 					</RadioGroup>
 				</FormControl>
-				<Button onClick={()=>{
-					console.log("hello me");
-					}}
+				<Button 
+					bg="#603F83FF" 
+					color="white" 
+					onClick={createRoom}
+					isLoading={loading}
 				> 
 					Create 
 				</Button>

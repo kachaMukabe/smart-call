@@ -16,8 +16,6 @@ import {
 	DrawerContent,
 	Text,
 	useDisclosure,
-	BoxProps,
-	FlexProps,
 	Menu,
 	MenuButton,
 	MenuDivider,
@@ -31,15 +29,18 @@ import {
   FiMoon,
 	FiChevronDown,
 	FiSettings,
-  FiBell,
+  FiFileText
 } from 'react-icons/fi';
+import { Link as ReactLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from "../../AuthContext";
+import { auth } from '../../firebase';
+import { signOut } from 'firebase/auth';
 
 
 
 const LinkItems = [
-	{name: "Home", icon: FiHome},
-	{name: "Settings", icon: FiSettings}
+  {name: "Home", icon: FiHome, path: "/"},
+  {name: "Meeting Analysis", icon: FiFileText, path: "/data"}
 ]
 
 
@@ -47,7 +48,7 @@ export default function SidebarWithHeader({children}){
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	return (
-		<Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
+		<Box minH="100vh" bg={useColorModeValue('gray.50', 'gray.900')}>
 			<SidebarContent
 				onClose={() => onClose}
 				display={{ base: 'none', md: 'block' }}
@@ -91,7 +92,7 @@ const SidebarContent = ( { onClose, ...rest } ) => {
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon}>
+        <NavItem key={link.name} icon={link.icon} path={link.path}>
           {link.name}
         </NavItem>
       ))}
@@ -99,9 +100,9 @@ const SidebarContent = ( { onClose, ...rest } ) => {
 	);
 };
 
-const NavItem = ({ icon, children, ...rest }) => {
+const NavItem = ({ icon, path, children, ...rest }) => {
 	return (
-	<Link href="#" style={{ textDecoration: 'none' }} _focus={{ boxShadow: 'none' }}>
+	<Link href="#" style={{ textDecoration: 'none' }} _focus={{ boxShadow: 'none' }} as={ReactLink} to={path}>
       <Flex
         align="center"
         p="4"
@@ -110,7 +111,7 @@ const NavItem = ({ icon, children, ...rest }) => {
         role="group"
         cursor="pointer"
         _hover={{
-          bg: 'cyan.400',
+          bg: '#603F83FF',
           color: 'white',
         }}
         {...rest}>
@@ -133,6 +134,15 @@ const NavItem = ({ icon, children, ...rest }) => {
 const MobileNav = ({ onOpen, ...rest }) => {
   const { colorMode, toggleColorMode } = useColorMode();
   const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const logOut = () => {
+    signOut(auth).then(()=>{
+
+    }).catch((error) => {
+      console.log(error);
+    })
+  }
 
 	return (
 	<Flex
@@ -196,7 +206,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
               borderColor={useColorModeValue('gray.200', 'gray.700')}>
               <MenuItem>Profile</MenuItem>
               <MenuDivider />
-              <MenuItem>Sign out</MenuItem>
+              <MenuItem onClick={logOut}>Sign out</MenuItem>
             </MenuList>
           </Menu>
         </Flex>
