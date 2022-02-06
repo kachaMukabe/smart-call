@@ -12,18 +12,14 @@ import {
   SimpleGrid,
   Box,
   Heading,
-  Avatar,
-  Center,
   Button,
   Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
   useDisclosure,
-  useColorModeValue,
   Container,
   Stack,
   UnorderedList,
@@ -34,10 +30,8 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverBody,
-  PopoverFooter,
   PopoverArrow,
   PopoverCloseButton,
-  PopoverAnchor,
 } from "@chakra-ui/react";
 import {
   FiMic,
@@ -114,7 +108,7 @@ const Join = () => {
       setStreamId(userId);
       localStorage.setItem("ID", id);
       localStorage.setItem("streamId", userId);
-      let new_active = active.filter((user) => user.uid != currentUser.uid);
+      let new_active = active.filter((user) => user.uid !== currentUser.uid);
       new_active.push({
         uid: currentUser.uid,
         pic: currentUser.photoURL,
@@ -238,7 +232,7 @@ const Join = () => {
               .data()
               ?.members.filter(
                 (member) =>
-                  member.userId != parseInt(localStorage.getItem("streamId"))
+                  member.userId !== parseInt(localStorage.getItem("streamId"))
               ),
           })
             .then(() => localStorage.removeItem("streamId"))

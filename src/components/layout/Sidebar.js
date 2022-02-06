@@ -28,10 +28,9 @@ import {
   FiSun,
   FiMoon,
 	FiChevronDown,
-	FiSettings,
   FiFileText
 } from 'react-icons/fi';
-import { Link as ReactLink, useNavigate } from 'react-router-dom';
+import { Link as ReactLink } from 'react-router-dom';
 import { AuthContext } from "../../AuthContext";
 import { auth } from '../../firebase';
 import { signOut } from 'firebase/auth';
@@ -134,7 +133,6 @@ const NavItem = ({ icon, path, children, ...rest }) => {
 const MobileNav = ({ onOpen, ...rest }) => {
   const { colorMode, toggleColorMode } = useColorMode();
   const { currentUser } = useContext(AuthContext);
-  const navigate = useNavigate();
 
   const logOut = () => {
     signOut(auth).then(()=>{

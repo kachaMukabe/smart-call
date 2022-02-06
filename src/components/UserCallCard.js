@@ -6,7 +6,6 @@ import {
 	Heading,
 	Text,
 	Stack,
-	Image,
 } from '@chakra-ui/react';
 
 export default function UserCallCard({ currentUser }) {
