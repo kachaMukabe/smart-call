@@ -250,7 +250,7 @@ const Join = () => {
   useEffect(() => {
     (async () => {
       if (room !== "") {
-        const res = await fetch("http://localhost:8081/symbl-token");
+        const res = await fetch(process.env.REACT_APP_SMART_CALL_API);
         const data = await res.json();
         const config = {
           attendeeId: btoa(currentUser.displayName),
