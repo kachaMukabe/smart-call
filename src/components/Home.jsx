@@ -8,8 +8,6 @@ import {
 	Button,
 	FormControl,
   FormLabel,
-  FormErrorMessage,
-  FormHelperText,
 	Input,
 	HStack,
 	RadioGroup,
@@ -43,6 +41,7 @@ const Home = () => {
 			});
 
 			const roomAnalysis = await setDoc(doc(db, "roomAnalysis", room.id),{
+				room_name: room.room_name,
 				created_at: new Date(),
 				transcript: [],
 				insights: [],

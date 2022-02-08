@@ -137,10 +137,8 @@ const Join = () => {
   };
 
   useEffect(() => {
-    console.log("hi there");
     window.onbeforeunload = (event) => {
       const e = event || window.event;
-      console.log("Hello");
       e.preventDefault();
       if (e) {
         e.returnValue = "";
@@ -252,7 +250,7 @@ const Join = () => {
           userName: currentUser.displayName,
           meeting: room,
         };
-        console.log("Got symbl token", data, config);
+        //console.log("Got symbl token", data, config);
         Symbl.ACCESS_TOKEN = data.accessToken;
 
         symbl = new Symbl(config);
